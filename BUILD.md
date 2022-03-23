@@ -44,7 +44,7 @@ composer dump-autoload -o
 
 ### Run webserver
 ```
-(cd docker; docker-compose up --remove-orphans --build)
+(cd docker; docker-compose rm -f; docker-compose pull; docker-compose up --remove-orphans --build)
 ```
 Now visit [http://localhost:8080](http://localhost:8080) for your site and [http://localhost:8080/wp-admin](http://localhost:8080/wp-admin) to log into WordPress.
 

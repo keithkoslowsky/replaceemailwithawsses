@@ -240,7 +240,7 @@ if (!class_exists('ReplaceEmailWithAwsSes')) {
      * @param array $attachments
      * @return bool
      */
-    public function sendEmail(array $to = array(), string $subject, string $message, array $headers = [], array $attachments = []): bool
+    public function sendEmail(array $to, string $subject, string $message, array $headers = [], array $attachments = []): bool
     {
       if (empty($to) || empty($subject) || empty($message)) {
         $this->logError('Missing required arguments to sendEmail.');
