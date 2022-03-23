@@ -1,62 +1,41 @@
-## AWS IAM Permissions
+# Purpose
+By default, WordPress uses the server to send mail. That requires technical knowledge of how to configure a server. WordPress and a lot of third party plugins use a function called wp_mail() to send mail. 
+
+This plugin allows you to continue to use wp_mail but will then take the values sent to it and instead of using the local server to send email, it will use AWS SES SDK. 
+
+There is a [small cost](https://aws.amazon.com/ses/pricing/) to send emails with AWS SES. It is pay as you go.
+
+# Setup
+
+### AWS IAM Permissions
 You will need to create an IAM user (or if you are running this on AWS infrastructure, have your instance role), with the permissions of SendRawEmail on the SES v2 service.
 
-## .env file
-Create an .env file with the following. Update to reflect your world. 
+![Create IAM user](images/create_iam_user.png)
 
-You will want to use either AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY or AWS_PROFILE. AWS_PROFILE is the profile found in ~/.aws/credentials. If you want to use an AWS_PROFILE, then comment out  AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and uncomment AWS_PROFILE.
+![Attach policy](images/iam_policy.png)
 
+### Set environment variables
 ```
-AWS_ACCESS_KEY_ID=XXX
-AWS_SECRET_ACCESS_KEY=XXX
-# AWS_PROFILE=foobar
-
 REWAS_FROM_ADDRESS=foobar@example.com
 REWAS_FROM_NAME="Foo Bar"
 REWAS_REGION=us-east-1
 
-# mysql db image (only needed for development of the plugin and not for the plugin itself)
-MYSQL_DATABASE=exampledb
-MYSQL_USER=exampleuser
-MYSQL_PASSWORD=examplepass
-MYSQL_RANDOM_ROOT_PASSWORD='1'
-
-# wordpress image (only needed for development of the plugin and not for the plugin itself)
-WORDPRESS_DB_HOST=db
-WORDPRESS_DB_USER=exampleuser
-WORDPRESS_DB_PASSWORD=examplepass
-WORDPRESS_DB_NAME=exampledb
-WORDPRESS_DEBUG=1
+AWS_ACCESS_KEY_ID=XXX
+AWS_SECRET_ACCESS_KEY=XXX
+# AWS_PROFILE=foobar
 ```
 
-## Build Docker image
-Building a Docker image is helpful to run tests (PHPUnit) or run Composer.
+`REWAS_FROM_ADDRESS` - The address SES will use to send your emails. This address will need to be [configured](https://docs.aws.amazon.com/ses/latest/dg/creating-identities.html#verify-email-addresses-procedure) in AWS SES to be allowed to send emails. 
 
-```
-docker build -t replaceemailwithawsses -f docker/Dockerfile .
-```
+`REWAS_FROM_NAME` - The name you want in the From. This is usually prefixed before the email address in the headers of an email.
 
-## Run Composer
-```
-docker run --env-file .env -it --entrypoint bash -v $PWD:$PWD -w $PWD replaceemailwithawsses
-composer install
-composer dump-autoload -o
-```
+`REWAS_REGION` - Set which region you want to send the mail from. If this is not set, it uses `us-east-1`. Note: you must setup AWS SES in this region, that includes requesting being moved out of sandbox mode, prior to expecting this to work.
 
-## Run webserver
-```
-(cd docker; docker-compose up --remove-orphans --build)
-```
-Now visit http://localhost:8080 for your site and http://localhost:8080/wp-admin to log into WordPress.
+If you are using this to send to [unverified people](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html), then you will need to request to take your AWS SES account out of [Sandbox mode](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
 
-<!-- ## Run tests - [TODO]
-```
-docker run -e ABSPATH=/ --env-file .env -it --entrypoint bash -v $PWD:$PWD -w $PWD replaceemailwithawsses
-./vendor/bin/phpunit tests/
-```
--->
+You will want to use either `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` or `AWS_PROFILE`. `AWS_PROFILE` is the profile found in ~/.aws/credentials. If you want to use an `AWS_PROFILE`, then comment out `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and uncomment `AWS_PROFILE`. Note, if you are running this on an AWS instance, just grant the role, SendRawEmail and you shouldn't have to mess with setting any AWS_ variables because they should be set automatically.
 
-## Compress with zip, to submit to WordPress Plugins
-```
-WORKING_DIR=`pwd`; rm -rf /tmp/replaceemailwithawsses; mkdir -p /tmp/replaceemailwithawsses; cp -r src/ReplaceEmailWithAwsSes.php vendor /tmp/replaceemailwithawsses; mkdir -p versions; VERSION=$(sed -n -e 's/* @version //p' src/ReplaceEmailWithAwsSes.php | sed 's/ //'); (cd /tmp/replaceemailwithawsses; zip -r ${WORKING_DIR}/versions/replace-email-with-aws-ses-${VERSION}.zip *); rm -rf /tmp/replaceemailwithawsses;
-```
+
+# Modify this project
+If you just want to use this plugin, all the above should get you going. However, if you want to fork this project and easily get up and running to modify it and make your own version, the documentation for that can be found in [BUILD.md](BUILD.md)
+
