@@ -1,0 +1,23 @@
+{
+    "name": "keithkoslowsky/replace-email-with-aws-ses",
+    "description": "Replace WordPress default email client with AWS SES.",
+    "license": "GPL-2.0",
+    "autoload": {
+        "psr-4": {
+            "Keithkoslowsky\\ReplaceEmailWithAwsSes\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Keith Koslowsky",
+            "email": "hackeronekeithk@gmail.com"
+        }
+    ],
+    "require": {
+        "aws/aws-sdk-php": "^3.213",
+      "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}
