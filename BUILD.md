@@ -38,13 +38,13 @@ docker build -t replaceemailwithawsses -f docker/Dockerfile .
 ### Run Composer
 ```
 docker run --env-file .env -it --entrypoint bash -v $PWD:$PWD -w $PWD replaceemailwithawsses
-composer install
+composer install --no-dev
 composer dump-autoload -o
 ```
 
 ### Run webserver
 ```
-(cd docker; docker-compose rm -f; docker-compose pull; docker-compose up --remove-orphans --build)
+(cd docker; docker-compose down --volumes; docker-compose up --remove-orphans --build)
 ```
 Now visit [http://localhost:8080](http://localhost:8080) for your site and [http://localhost:8080/wp-admin](http://localhost:8080/wp-admin) to log into WordPress.
 
@@ -57,5 +57,33 @@ docker run -e ABSPATH=/ --env-file .env -it --entrypoint bash -v $PWD:$PWD -w $P
 
 ### Compress with zip, to submit to WordPress Plugins
 ```
-WORKING_DIR=`pwd`; rm -rf /tmp/replaceemailwithawsses; mkdir -p /tmp/replaceemailwithawsses; cp -r src/ReplaceEmailWithAwsSes.php vendor /tmp/replaceemailwithawsses; mkdir -p versions; VERSION=$(sed -n -e 's/* @version //p' src/ReplaceEmailWithAwsSes.php | sed 's/ //'); (cd /tmp/replaceemailwithawsses; zip -r ${WORKING_DIR}/versions/replace-email-with-aws-ses-${VERSION}.zip *); rm -rf /tmp/replaceemailwithawsses;
+WORKING_DIR=`pwd`; rm -rf /tmp/replaceemailwithawsses; mkdir -p /tmp/replaceemailwithawsses; cp -r src/ReplaceEmailWithAwsSes.php vendor /tmp/replaceemailwithawsses; cp wordpress-readme.txt /tmp/replaceemailwithawsses/readme.txt; mkdir -p versions; VERSION=$(sed -n -e 's/* @version //p' src/ReplaceEmailWithAwsSes.php | sed 's/ //'); (cd /tmp/replaceemailwithawsses; rm -rf ${WORKING_DIR}/versions/replace-email-with-aws-ses-${VERSION}.zip; zip -r ${WORKING_DIR}/versions/replace-email-with-aws-ses-${VERSION}.zip *); rm -rf /tmp/replaceemailwithawsses;
 ```
+
+### Tested versions
+
+wordpress:5.9.2-php8.1-apache => mysql 8.0
+wordpress:5.9.1-php8.1-apache => mysql 8.0
+wordpress:5.9.0-php8.1-apache => mysql 8.0
+
+wordpress:5.8.3-php8.0-apache => mysql 5.7
+wordpress:5.8.2-php8.0-apache => mysql 5.7
+wordpress:5.8.1-php8.0-apache => mysql 5.7
+wordpress:5.8.0-php8.0-apache => mysql 5.7
+
+wordpress:5.7-php7.4-apache => mysql 5.7, wp version 5.7.2 and php 7.4.21
+wordpress:5.6-php7.4-apache => mysql 5.7, wp version 5.6.2 and php 7.4.16
+wordpress:5.5-php7.4-apache => mysql 5.7, wp version 5.5.3 and php 7.4.13
+
+wordpress:5.9-php7.3-apache => mysql 5.7, wp version 5.9.2 and php 7.3.33
+wordpress:5.8-php7.3-apache => mysql 5.7, wp version 5.8.3 and php 7.3.33
+wordpress:5.7-php7.3-apache => mysql 5.7, wp version 5.7.2 and php 7.3.29
+wordpress:5.6-php7.3-apache => mysql 5.7, wp version 5.6.2 and php 7.3.27
+wordpress:5.5-php7.3-apache => mysql 5.7, wp version 5.5.3 and php 7.3.25
+
+wordpress:5.6-php7.2-apache => mysql 5.7, wp version 5.6 and php 7.2.34
+wordpress:5.5-php7.2-apache => mysql 5.7, wp version 5.5.3 and php 7.2.34
+
+
+
+
